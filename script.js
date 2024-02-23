@@ -137,19 +137,19 @@ document.addEventListener("keydown", function (event) {
     const code = event.code;
     const new_state = true;
 
-    if (code == "KeyW") keyboard.w = new_state;
-    if (code == "KeyA") keyboard.a = new_state;
-    if (code == "KeyS") keyboard.s = new_state;
-    if (code == "KeyD") keyboard.d = new_state;
+    if (code == "KeyW" || code == "ArrowUp") keyboard.w = new_state;
+    if (code == "KeyA" || code == "ArrowLeft") keyboard.a = new_state;
+    if (code == "KeyS" || code == "ArrowDown") keyboard.s = new_state;
+    if (code == "KeyD" || code == "ArrowRight") keyboard.d = new_state;
 });
 document.addEventListener("keyup", function (event) {
     const code = event.code;
     const new_state = false;
 
-    if (code == "KeyW") keyboard.w = new_state;
-    if (code == "KeyA") keyboard.a = new_state;
-    if (code == "KeyS") keyboard.s = new_state;
-    if (code == "KeyD") keyboard.d = new_state;
+    if (code == "KeyW" || code == "ArrowUp") keyboard.w = new_state;
+    if (code == "KeyA" || code == "ArrowLeft") keyboard.a = new_state;
+    if (code == "KeyS" || code == "ArrowDown") keyboard.s = new_state;
+    if (code == "KeyD" || code == "ArrowRight") keyboard.d = new_state;
 });
 
 setInterval(function () { fps = (1000 / fpsFrameTime).toFixed(1); }, 1000);
