@@ -58,9 +58,11 @@ function render() {
     // ctx.fillRect(player.cell.x * size - camera.x, player.cell.y * size - camera.y, size, size);
 
     ctx.fillStyle = "red"; // <insert baller meme here>
+    ctx.lineWidth=1;
     ctx.beginPath();
     ctx.arc(player.x - camera.x, player.y - camera.y, player_size, 0, 2 * Math.PI);
     ctx.fill();
+    ctx.stroke();
 
     // Text stats
     ctx.fillStyle = "red";
