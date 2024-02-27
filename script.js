@@ -2,6 +2,9 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+let joystick=new JoyStick("joystick_el");
+let joystick_direction=["C"];
+
 // This code keeps the canvas size fit the screen size
 function updateSize() {
     canvas.width = innerWidth;
@@ -73,6 +76,7 @@ function render() {
     ctx.fillText(`FPS: ${fps}`, 5, 10);
     ctx.fillText(`Player: ${player.x}x${player.y} (Cell ${player.cell.x}x${player.cell.y})`, 5, 25);
     ctx.fillText(`Camera: ${camera.x}x${camera.y}`, 5, 40);
+    ctx.fillText(`Joystick: ${joystick_direction.join("")}`,5,55);
 }
 
 // FPS Vars
@@ -86,23 +90,25 @@ function app() {
     player.cell.x = Math.floor(player.x / size);
     player.cell.y = Math.floor(player.y / size);
 
+    joystick_direction=[...joystick.GetDir()];
+
     // Math x2 (this handles player moves and collisions)
-    if (keyboard.w) {
+    if (keyboard.w||joystick_direction.includes("N")) {
         if (map[player.cell.y - 1][player.cell.x] == 2) {
             if (player.y - player_size > player.cell.y * size) player.y -= moveCof;
         } else if (map[player.cell.y - 1][player.cell.x] == 1) player.y -= moveCof;
     }
-    if (keyboard.a) {
+    if (keyboard.a||joystick_direction.includes("W")) {
         if (map[player.cell.y][player.cell.x - 1] == 2) {
             if (player.x - player_size > player.cell.x * size) player.x -= moveCof;
         } else if (map[player.cell.y][player.cell.x - 1] == 1) player.x -= moveCof;
     }
-    if (keyboard.s) {
+    if (keyboard.s||joystick_direction.includes("S")) {
         if (map[player.cell.y + 1][player.cell.x] == 2) {
             if (player.y + player_size < player.cell.y * size + size) player.y += moveCof;
         } else if (map[player.cell.y + 1][player.cell.x] == 1) player.y += moveCof;
     }
-    if (keyboard.d) {
+    if (keyboard.d||joystick_direction.includes("E")) {
         if (map[player.cell.y][player.cell.x + 1] == 2) {
             if (player.x + player_size < player.cell.x * size + size) player.x += moveCof;
         } else if (map[player.cell.y][player.cell.x + 1] == 1) player.x += moveCof;
