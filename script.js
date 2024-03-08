@@ -73,8 +73,6 @@ let player = {
         if(player.y+player_size/2==cellBottom*size) cellBottom--;
         if(player.x+player_size/2==cellRight*size) cellRight--;
 
-        console.log(`${cellLeft}x${cellTop}\t${cellRight}x${cellTop}\n${cellLeft}x${cellBottom}\t${cellRight}x${cellBottom}`);
-
         canMove.up=!((map[cellTop-1][cellLeft]==2||map[cellTop-1][cellRight]==2)&&(player.y-player_size/2)==cellTop*size);
         canMove.down=!((map[cellBottom+1][cellLeft]==2||map[cellBottom+1][cellRight]==2)&&(player.y+player_size/2==cellBottom*size+size));
         canMove.left=!((map[cellTop][cellLeft-1]==2||map[cellBottom][cellLeft-1]==2)&&(player.x-player_size/2==cellLeft*size));
