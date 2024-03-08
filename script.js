@@ -2,8 +2,8 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let joystick=new JoyStick("joystick_el");
-let joystick_direction=["C"];
+let joystick = new JoyStick("joystick_el");
+let joystick_direction = ["C"];
 
 // This code keeps the canvas size fit the screen size
 function updateSize() {
@@ -18,27 +18,73 @@ let maze = convertMaze(generateMazeOld(20, 20)); // Converts old realization to 
 let map = [...maze] // Idk why is it here, I wanted to add some lobby rooms :)
 
 
-let size = 32; // Cell cize
-let player_size = size / 4; // Player size (var name lol)
+let size = 32 * 2; // Cell cize
+let player_size = 48; // Player size (var name lol)
 
-let moveCof = Math.floor(size / 8); // Move speed: px/frame
-let camera_move_start_precentage = 40; // Where to start moving camera
+let moveCof = 4; // Move speed: px/frame
+let camera_move_start_precentage = 30; // Where to start moving camera
 
 let camera = {
     x: Math.floor(-canvas.width * (camera_move_start_precentage / 100)), // Camera position X
     y: Math.floor(-canvas.height * (camera_move_start_precentage / 100)) // Camera position Y
 }
 
-
 let player = {
-    x: size + player_size * 2, y: size + player_size * 2, // Basic position
-    cell: { // Current player cell
-        x: 1,
-        y: 1
+    x: 1.5 * size,
+    y: 1.5 * size,
+    walkCof: 0,
+    last_direction: "right",
+    texture: new Sprite(new CaImage("spritesheet.png"), 64, 0, 7),
+    move(xof, yof) {
+
+        if (yof < 0) this.texture.indexY = 8;
+        else if (yof > 0) this.texture.indexY = 10;
+        else if (xof > 0) this.texture.indexY = 11;
+        else if (xof < 0) this.texture.indexY = 9;
+
+        this.walkCof += 1;
+        if (this.walkCof >= 8) this.walkCof = 0;
+        this.texture.indexX = this.walkCof;
+
+        this.x += xof;
+        this.y += yof;
+
+    },
+    canMove() {
+        let canMove = {
+            up: true,
+            down: true,
+            left: true,
+            right: true
+        };
+
+        let xLeft=player.x-player_size/2;
+        let yTop=player.y-player_size/2;
+        let xRight=player.x+player_size/2;
+        let yBottom=player.y+player_size/2;
+
+        // LT = XL+YT; RT = XR+YT; LB = XL+YB; RB = XR+YB
+        
+        let cellRight=Math.floor(xRight/size);
+        let cellLeft=Math.floor(xLeft/size);
+        let cellTop=Math.floor(yTop/size);
+        let cellBottom=Math.floor(yBottom/size);
+
+        if(player.y+player_size/2==cellBottom*size) cellBottom--;
+        if(player.x+player_size/2==cellRight*size) cellRight--;
+
+        console.log(`${cellLeft}x${cellTop}\t${cellRight}x${cellTop}\n${cellLeft}x${cellBottom}\t${cellRight}x${cellBottom}`);
+
+        canMove.up=!((map[cellTop-1][cellLeft]==2||map[cellTop-1][cellRight]==2)&&(player.y-player_size/2)==cellTop*size);
+        canMove.down=!((map[cellBottom+1][cellLeft]==2||map[cellBottom+1][cellRight]==2)&&(player.y+player_size/2==cellBottom*size+size));
+        canMove.left=!((map[cellTop][cellLeft-1]==2||map[cellBottom][cellLeft-1]==2)&&(player.x-player_size/2==cellLeft*size));
+        canMove.right=!((map[cellTop][cellRight+1]==2||map[cellBottom][cellRight+1]==2)&&(player.x+player_size/2==cellRight*size+size));
+
+        return canMove;
     }
 }
 
-const keyboard = { // Keyboard legacy object (maybe will add mobile controls idk)
+const keyboard = { // Keyboard legacy object
     w: false,
     a: false,
     s: false,
@@ -60,12 +106,18 @@ function render() {
     // ctx.fillStyle = "purple";
     // ctx.fillRect(player.cell.x * size - camera.x, player.cell.y * size - camera.y, size, size);
 
-    ctx.fillStyle = "red"; // <insert baller meme here>
-    ctx.lineWidth=1;
-    ctx.beginPath();
-    ctx.arc(player.x - camera.x, player.y - camera.y, player_size, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
+    // ctx.fillStyle = "red"; // <insert baller meme here>
+    // ctx.lineWidth=1;
+    // ctx.beginPath();
+    // ctx.arc(player.x - camera.x, player.y - camera.y, player_size, 0, 2 * Math.PI);
+    // ctx.fill();
+    // ctx.stroke();
+
+    player.texture.render(ctx, player.x - player_size / 2 - camera.x, player.y - player_size / 2 - camera.y, player_size, player_size);
+
+    // // Hitbox rendering
+    // ctx.fillStyle = "rgba(255,0,0,0.3)";
+    // ctx.fillRect(player.x - player_size / 2 - camera.x, player.y - player_size / 2 - camera.y, player_size, player_size);
 
     // Text stats
     ctx.fillStyle = "red";
@@ -74,9 +126,9 @@ function render() {
     ctx.textAlign = "left";
 
     ctx.fillText(`FPS: ${fps}`, 5, 10);
-    ctx.fillText(`Player: ${player.x}x${player.y} (Cell ${player.cell.x}x${player.cell.y})`, 5, 25);
+    ctx.fillText(`Player: ${player.x}x${player.y}`, 5, 25);
     ctx.fillText(`Camera: ${camera.x}x${camera.y}`, 5, 40);
-    ctx.fillText(`Joystick: ${joystick_direction.join("")}`,5,55);
+    ctx.fillText(`Joystick: ${joystick_direction.join("-")}`, 5, 55);
 }
 
 // FPS Vars
@@ -86,33 +138,28 @@ let fps = "--.-";
 
 // Loop function
 function app() {
-    // Math
-    player.cell.x = Math.floor(player.x / size);
-    player.cell.y = Math.floor(player.y / size);
 
-    joystick_direction=[...joystick.GetDir()];
+    joystick_direction = [...joystick.GetDir()];
+    let availableDirections = player.canMove();
 
-    // Math x2 (this handles player moves and collisions)
-    if (keyboard.w||joystick_direction.includes("N")) {
-        if (map[player.cell.y - 1][player.cell.x] == 2) {
-            if (player.y - player_size > player.cell.y * size) player.y -= moveCof;
-        } else if (map[player.cell.y - 1][player.cell.x] == 1) player.y -= moveCof;
+    // Joystick: WASD = NWSE
+    if (keyboard.w || joystick_direction.includes("N")) {
+        if (availableDirections.up) player.move(0, -moveCof);
     }
-    if (keyboard.a||joystick_direction.includes("W")) {
-        if (map[player.cell.y][player.cell.x - 1] == 2) {
-            if (player.x - player_size > player.cell.x * size) player.x -= moveCof;
-        } else if (map[player.cell.y][player.cell.x - 1] == 1) player.x -= moveCof;
+    if (keyboard.a || joystick_direction.includes("W")) {
+        if (availableDirections.left) player.move(-moveCof, 0);
     }
-    if (keyboard.s||joystick_direction.includes("S")) {
-        if (map[player.cell.y + 1][player.cell.x] == 2) {
-            if (player.y + player_size < player.cell.y * size + size) player.y += moveCof;
-        } else if (map[player.cell.y + 1][player.cell.x] == 1) player.y += moveCof;
+    if (keyboard.s || joystick_direction.includes("S")) {
+        if (availableDirections.down) player.move(0, moveCof);
     }
-    if (keyboard.d||joystick_direction.includes("E")) {
-        if (map[player.cell.y][player.cell.x + 1] == 2) {
-            if (player.x + player_size < player.cell.x * size + size) player.x += moveCof;
-        } else if (map[player.cell.y][player.cell.x + 1] == 1) player.x += moveCof;
+    if (keyboard.d || joystick_direction.includes("E")) {
+        if (availableDirections.right) player.move(moveCof, 0);
     }
+    if (!keyboard.w && !keyboard.a && !keyboard.s && !keyboard.d && joystick_direction.includes("C")) {
+        player.walkCof = 0;
+        player.texture.indexX = 0;
+    }
+
 
     // Camera controls
     let player_render_x = player.x - camera.x;
@@ -124,13 +171,6 @@ function app() {
     if (player_render_y < canvas.height * (camera_move_start_precentage / 100)) camera.y -= moveCof;
 
     render(); // Boom! Render!
-
-    if (player.cell.x == map[map.length - 1].length - 2 && player.cell.y == map.length - 2) {
-        maze = convertMaze(generateMazeOld(20, 20));
-        map = [...maze];
-        player.x = size + player_size * 2;
-        player.y = size + player_size * 2;
-    }
 
     // FPS Handler
     let fpsThisFrameTime = (fpsThisLoop = new Date) - fpsLastLoop;
