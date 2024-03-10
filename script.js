@@ -19,7 +19,7 @@ if (onlineMode) {
     let serverAddr = prompt("Plase enter server address");
     let nickname = prompt("Please enter your nickname");
 
-    let server = new WebSocket(`ws://${serverAddr}:8080`);
+    let server = new WebSocket(`wss://${serverAddr}:8080`);
 
     let size = 64;
 
