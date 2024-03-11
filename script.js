@@ -19,7 +19,7 @@ if (onlineMode) {
     let serverAddr = prompt("Plase enter server address");
     let nickname = prompt("Please enter your nickname");
 
-    let server = new WebSocket(`wss://${serverAddr}:8080`);
+    let server = new WebSocket(`ws://${serverAddr}:8080`);
 
     let size = 64;
 
@@ -242,6 +242,7 @@ if (onlineMode) {
                 }
             }
         } else if (msg[0] == "players") {
+            players=[];
             let data = JSON.parse(msg[1]);
             for (let i = 0; i < data.length; i++) {
                 if (me.id == data[i].mid) continue;
