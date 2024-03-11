@@ -6,6 +6,6 @@
         "psr-4": {
             "MazeServer\\":"src/"
         },
-        "files": ["src/algorithm.php"]
+        "files": ["src/algorithm.php","src/utils.php"]
     }
 }

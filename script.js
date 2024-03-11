@@ -144,6 +144,10 @@ if (onlineMode) {
     }
 
     function app() {
+        if(server.readyState!=WebSocket.OPEN) {
+            alert("Connection lost.");
+            return;
+        }
         if (me.id == -1) {
             if (!askedFor.id) {
                 update();
@@ -281,6 +285,9 @@ if (onlineMode) {
 
     server.addEventListener("open", app);
     server.addEventListener("message", message);
+    server.addEventListener("error",(ev)=>{
+        alert("Something went wrong...");
+    })
 } else {
 
     // ==== DOM Objects ====
