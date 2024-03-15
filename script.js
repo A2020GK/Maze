@@ -201,7 +201,7 @@ if (onlineMode) {
             render();
 
         }
-        requestAnimationFrame(app);
+        setTimeout(app,1000/60);
     }
 
     function update() {
@@ -467,7 +467,7 @@ if (onlineMode) {
         fpsFrameTime += (fpsThisFrameTime - fpsFrameTime) / fpsFilterStrength;
         fpsLastLoop = fpsThisLoop;
 
-        requestAnimationFrame(app); // Infinite loop! Woooo!
+        setTimeout(app,1000/60); // Infinite loop! Woooo!
     }
 
     // Wrapper from JS API to my legacy keyboard object
