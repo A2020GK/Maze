@@ -10,7 +10,7 @@ body {
 
 #canvas {
     display: block;
-    background-color: violet;
+    background-color: black;
 }
 
 #joystick_el {

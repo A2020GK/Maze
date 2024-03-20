@@ -102,6 +102,8 @@ if (onlineMode) {
 
     let me = new Player();
 
+    const wallTexture=new CaImage("wall.jpg");
+    const airTexture=new CaImage("air.jpg");
 
     let players = [];
     let map = [];
@@ -123,12 +125,14 @@ if (onlineMode) {
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Fatal destruction of everything
 
         for (let y = 0; y < map.length; ++y) for (let x = 0; x < map[y].length; x++) { // Cell rendering
-            if (map[y][x] == 2) ctx.fillStyle = "black"; // #nigercell
-            else if (map[y][x] == 1) ctx.fillStyle = "#909090";
-            if (x == map[y].length - 2 && y == map.length - 2) ctx.fillStyle = "#0000ff";
-            if (map[y][x] != 0)
+            if(map[y][x]==2) {
+                ctx.drawImage(wallTexture,x*size-camera.x,y*size-camera.y,size,size);
+            } else if(x == map[y].length - 2 && y == map.length - 2) {
+                ctx.fillStyle="#0000ff";
                 ctx.fillRect(x * size - camera.x, y * size - camera.y, size, size);
-
+            } else if(maze[y][x]==1) {
+                ctx.drawImage(airTexture,x*size-camera.x,y*size-camera.y,size,size);
+            }
         }
 
         for (let i = 0; i < players.length; i++) {
@@ -316,6 +320,9 @@ if (onlineMode) {
     let moveCof = 4; // Move speed: px/frame
     let camera_move_start_precentage = 30; // Where to start moving camera
 
+    const wallTexture=new CaImage("wall.jpg");
+    const airTexture=new CaImage("air.jpg");
+
     let camera = {
         x: Math.floor(-canvas.width * (camera_move_start_precentage / 100)), // Camera position X
         y: Math.floor(-canvas.height * (camera_move_start_precentage / 100)) // Camera position Y
@@ -385,11 +392,14 @@ if (onlineMode) {
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Fatal destruction of everything
 
         for (let y = 0; y < map.length; ++y) for (let x = 0; x < map[y].length; x++) { // Cell rendering
-            if (map[y][x] == 2) ctx.fillStyle = "black"; // #nigercell
-            else if (map[y][x] == 1) ctx.fillStyle = "#909090";
-            if (x == map[y].length - 2 && y == map.length - 2) ctx.fillStyle = "#0000ff";
-            if (map[y][x] != 0)
+            if(map[y][x]==2) {
+                ctx.drawImage(wallTexture,x*size-camera.x,y*size-camera.y,size,size);
+            } else if(x == map[y].length - 2 && y == map.length - 2) {
+                ctx.fillStyle="#0000ff";
                 ctx.fillRect(x * size - camera.x, y * size - camera.y, size, size);
+            } else if(maze[y][x]==1) {
+                ctx.drawImage(airTexture,x*size-camera.x,y*size-camera.y,size,size);
+            }
 
         }
 
