@@ -4,9 +4,6 @@ body {
     padding: 0;
     overflow: hidden;
 }
-#wrapper {
-    position: relative;
-}
 
 #canvas {
     display: block;

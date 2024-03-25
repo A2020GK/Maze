@@ -130,7 +130,7 @@ if (onlineMode) {
             } else if(x == map[y].length - 2 && y == map.length - 2) {
                 ctx.fillStyle="#0000ff";
                 ctx.fillRect(x * size - camera.x, y * size - camera.y, size, size);
-            } else if(maze[y][x]==1) {
+            } else if(map[y][x]==1) {
                 ctx.drawImage(airTexture,x*size-camera.x,y*size-camera.y,size,size);
             }
         }
