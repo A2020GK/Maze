@@ -1,14 +1,4 @@
-let localization = false;
-
-while (!localization) {
-    let locCode = prompt("Please enter the language code\nВведите код языка\n[ru, en]");
-    if (localizations[locCode] != undefined) localization = localizations[locCode]; else {
-        alert("Unknown language code.\nНеверный код языка.");
-    }
-}
-
-
-const onlineMode = confirm(localization.onlineAsk);
+const onlineMode = confirm("Запустить мултиплеер?");
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -24,13 +14,14 @@ function updateSize() {
 addEventListener("resize", updateSize);
 updateSize();
 
-let serverAddress = onlineMode ? prompt(localization.serverAsk) : null;;
+let serverAddress = onlineMode ? prompt("Введите адрес сервера") : null;
+let server = null; // WebSocket object will be created here later
 
-let server = null;
-let nickname = prompt(localization.nicknameAsk).trim() ?? localization.defaultNickname;
+let nickname = prompt("Введите ваш ник") ?? "Игрок";
+nickname=nickname.trim();
+if (nickname == "") nickname = "Игрок";
 
-if (nickname == "") nickname = localization.defaultNickname;
-
+// ==== Render & collision settings ====
 let blockSize = 64;
 let playerSize = 48;
 let moveCof = 4;
@@ -41,13 +32,14 @@ let camera = {
     y: Math.floor(-canvas.height * (cameraMoveScreenPrecentage / 100)) // Camera position Y
 }
 
+// This is a class for any Player, no matter, offline or online. 
 class Player {
     x = 1.5 * blockSize;
     y = 1.5 * blockSize;
     done = false;
     walkFrameId = 0;
-    onlineId = -1;
-    nickname = localization.defaultNickname;
+    onlineId = -1; // If the multiplayer is not enabled, player has -1 as id
+    nickname = "Игрок";
     texture = new Sprite(new CaImage("textures/spritesheet.png"), 64, 0, 11)
     move(xof, yof) {
         if (yof < 0) this.texture.indexY = 8;
@@ -208,33 +200,35 @@ document.addEventListener("keyup", function (event) {
     if (code == "KeyD" || code == "ArrowRight") keyboard.d = new_state;
 });
 
-function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Fatal destruction of everything
+let readyToRender=false;
 
-    for (let y = 0; y < map.length; ++y) for (let x = 0; x < map[y].length; x++) { // Cell rendering
-        if (map[y][x] == 2) {
-            ctx.drawImage(globalTextures.wall, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
-        } else if (x == map[y].length - 2 && y == map.length - 2) {
-            ctx.fillStyle = "#0000ff";
-            ctx.fillRect(x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
-        } else if (map[y][x] == 1) {
-            ctx.drawImage(globalTextures.air, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
+function render() {
+    if (readyToRender) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Fatal destruction of everything
+
+        for (let y = 0; y < map.length; ++y) for (let x = 0; x < map[y].length; x++) { // Cell rendering
+            if (map[y][x] == 2) {
+                ctx.drawImage(globalTextures.wall, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
+            } else if (x == map[y].length - 2 && y == map.length - 2) {
+                ctx.fillStyle = "#0000ff";
+                ctx.fillRect(x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
+            } else if (map[y][x] == 1) {
+                ctx.drawImage(globalTextures.air, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
+            }
+        }
+
+        for (let i = 0; i < players.length; i++) {
+            players[i].texture.render(ctx, players[i].x - playerSize / 2 - camera.x, players[i].y - playerSize / 2 - camera.y, playerSize, playerSize);
+            ctx.font = "20px Arial";
+            ctx.fillStyle = "red";
+            ctx.font = "16px Arial monospace";
+            ctx.textBaseline = "top";
+            ctx.textAlign = "center";
+            ctx.fillText(players[i].nickname, players[i].x - camera.x, players[i].y - playerSize / 2 - 5 - camera.y);
         }
     }
-
-    for (let i = 0; i < players.length; i++) {
-        players[i].texture.render(ctx, players[i].x - playerSize / 2 - camera.x, players[i].y - playerSize / 2 - camera.y, playerSize, playerSize);
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "red";
-        ctx.font = "16px Arial monospace";
-        ctx.textBaseline = "top";
-        ctx.textAlign = "center";
-        ctx.fillText(players[i].nickname, players[i].x - camera.x, players[i].y - playerSize / 2 - 5 - camera.y);
-    }
-
+    requestAnimationFrame(render);
 }
-
-let watchdogStatus = false;
 
 function app() {
     if (currentPlayer == undefined) {
@@ -247,11 +241,11 @@ function app() {
             server = new WebSocket(`ws://${serverAddress}:8080`);
             server.addEventListener("open", app);
             server.addEventListener("message", onlineMessage);
-            server.addEventListener("error", event => alert(localization.onlineError));
+            server.addEventListener("error", event => alert("Произошла сетевая ошибка. Игра может быть нестабильной."));
             return;
         }
         if (server.readyState != WebSocket.OPEN) {
-            alert(localization.onlineDisconnected);
+            alert("Соединение с сервером потеряно. Синхронизация остановлена.");
             return;
         }
         if (currentPlayer.onlineId == -1) {
@@ -316,19 +310,9 @@ function app() {
     if (player_render_y > canvas.height * (1 - cameraMoveScreenPrecentage / 100)) camera.y += moveCof;
     if (player_render_y < canvas.height * (cameraMoveScreenPrecentage / 100)) camera.y -= moveCof;
 
-    render();
-    watchdogStatus = true;
-    setTimeout(app, 1000 / 60);
-
+    readyToRender=true;
+    setTimeout(app,1000/60);
 }
 
-let watchdog = setInterval(function () {
-    if (!watchdogStatus) {
-        alert(localization.watchdogError);
-        if (server) server.close();
-        clearInterval(watchdog);
-    }
-    watchdogStatus = false;
-}, 1000);
-
 app();
+render();

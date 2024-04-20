@@ -10,12 +10,12 @@ function generateMazeOld(rows, cols) {
         }))
     );
 
-    // Установка стартовой ячейку
+    // Установка стартовой ячейки
     const startRow = Math.floor(Math.random() * rows);
     const startCol = Math.floor(Math.random() * cols);
     let currentCell = { row: startRow, col: startCol };
 
-    // Алгоритм глубокого поиска для создания лабиринта
+    // Алгоритм создания лабиринта
     const stack = [currentCell];
     maze[currentCell.row][currentCell.col].visited = true;
 
