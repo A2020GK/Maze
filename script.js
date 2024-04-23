@@ -198,9 +198,7 @@ document.addEventListener("keyup", function (event) {
     if (code == "KeyA" || code == "ArrowLeft") keyboard.a = new_state;
     if (code == "KeyS" || code == "ArrowDown") keyboard.s = new_state;
     if (code == "KeyD" || code == "ArrowRight") keyboard.d = new_state;
-});
-
-let readyToRender=false;
+});
 
 function render() {
     if (readyToRender) {
@@ -227,7 +225,6 @@ function render() {
             ctx.fillText(players[i].nickname, players[i].x - camera.x, players[i].y - playerSize / 2 - 5 - camera.y);
         }
     }
-    requestAnimationFrame(render);
 }
 
 function app() {
@@ -310,9 +307,8 @@ function app() {
     if (player_render_y > canvas.height * (1 - cameraMoveScreenPrecentage / 100)) camera.y += moveCof;
     if (player_render_y < canvas.height * (cameraMoveScreenPrecentage / 100)) camera.y -= moveCof;
 
-    readyToRender=true;
+    render();
     setTimeout(app,1000/60);
 }
 
-app();
-render();
+app();
