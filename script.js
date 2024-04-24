@@ -198,32 +198,31 @@ document.addEventListener("keyup", function (event) {
     if (code == "KeyA" || code == "ArrowLeft") keyboard.a = new_state;
     if (code == "KeyS" || code == "ArrowDown") keyboard.s = new_state;
     if (code == "KeyD" || code == "ArrowRight") keyboard.d = new_state;
-});
+});
+
 
 function render() {
-    if (readyToRender) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Fatal destruction of everything
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Fatal destruction of everything
 
-        for (let y = 0; y < map.length; ++y) for (let x = 0; x < map[y].length; x++) { // Cell rendering
-            if (map[y][x] == 2) {
-                ctx.drawImage(globalTextures.wall, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
-            } else if (x == map[y].length - 2 && y == map.length - 2) {
-                ctx.fillStyle = "#0000ff";
-                ctx.fillRect(x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
-            } else if (map[y][x] == 1) {
-                ctx.drawImage(globalTextures.air, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
-            }
+    for (let y = 0; y < map.length; ++y) for (let x = 0; x < map[y].length; x++) { // Cell rendering
+        if (map[y][x] == 2) {
+            ctx.drawImage(globalTextures.wall, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
+        } else if (x == map[y].length - 2 && y == map.length - 2) {
+            ctx.fillStyle = "#0000ff";
+            ctx.fillRect(x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
+        } else if (map[y][x] == 1) {
+            ctx.drawImage(globalTextures.air, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
         }
+    }
 
-        for (let i = 0; i < players.length; i++) {
-            players[i].texture.render(ctx, players[i].x - playerSize / 2 - camera.x, players[i].y - playerSize / 2 - camera.y, playerSize, playerSize);
-            ctx.font = "20px Arial";
-            ctx.fillStyle = "red";
-            ctx.font = "16px Arial monospace";
-            ctx.textBaseline = "top";
-            ctx.textAlign = "center";
-            ctx.fillText(players[i].nickname, players[i].x - camera.x, players[i].y - playerSize / 2 - 5 - camera.y);
-        }
+    for (let i = 0; i < players.length; i++) {
+        players[i].texture.render(ctx, players[i].x - playerSize / 2 - camera.x, players[i].y - playerSize / 2 - camera.y, playerSize, playerSize);
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "red";
+        ctx.font = "16px Arial monospace";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "center";
+        ctx.fillText(players[i].nickname, players[i].x - camera.x, players[i].y - playerSize / 2 - 5 - camera.y);
     }
 }
 
@@ -311,4 +310,4 @@ function app() {
     setTimeout(app,1000/60);
 }
 
-app();
+app();
