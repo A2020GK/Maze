@@ -294,6 +294,7 @@ function app() {
     if (!onlineMode && currentPlayer.done) {
         currentPlayer.x = blockSize * 1.5;
         currentPlayer.y = blockSize * 1.5;
+        currentPlayer.done=false;
         currentPlayer.resetMove();
         map = convertMaze(generateMazeOld(20, 20));
     }

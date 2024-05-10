@@ -107,3 +107,94 @@ function convertMaze(maze) {
 
     return newMaze;
 }
+
+function solveMaze(maze, xStart, yStart, xEnd, yEnd) {
+
+    let locMaze = [];
+
+    for (let y = 0; y < maze.length; y++) {
+        locMaze[y] = [];
+        for (let x = 0; x < maze[0].length; x++) {
+            let wall = maze[y][x];
+            locMaze[y][x] = {
+                x: x,
+                y: y,
+                isWall: wall == 2 ? true : false,
+                marker: null
+            }
+        }
+    }
+
+    let currentCell = locMaze[yStart][xStart];
+
+    function recursionMark(startCell) {
+        let pointMarker = 0;
+        let queue = [startCell];
+        startCell.marker = pointMarker;
+
+        while (queue.length > 0) {
+            let currentCell = queue.shift();
+            pointMarker++;
+
+            let neighbors = [];
+            if ((currentCell.x - 1) >= 0) if (!locMaze[currentCell.y][currentCell.x - 1].isWall && locMaze[currentCell.y][currentCell.x - 1].marker === null)
+                neighbors.push(locMaze[currentCell.y][currentCell.x - 1]);
+            if ((currentCell.x + 1) < locMaze[0].length) if (!locMaze[currentCell.y][currentCell.x + 1].isWall && locMaze[currentCell.y][currentCell.x + 1].marker === null)
+                neighbors.push(locMaze[currentCell.y][currentCell.x + 1]);
+            if (currentCell.y - 1 >= 0) if (!locMaze[currentCell.y - 1][currentCell.x].isWall && locMaze[currentCell.y - 1][currentCell.x].marker === null)
+                neighbors.push(locMaze[currentCell.y - 1][currentCell.x]);
+            if (currentCell.y + 1 < locMaze.length) if (!locMaze[currentCell.y + 1][currentCell.x].isWall && locMaze[currentCell.y + 1][currentCell.x].marker === null)
+                neighbors.push(locMaze[currentCell.y + 1][currentCell.x]);
+
+            for (let neighbor of neighbors) {
+                neighbor.marker = pointMarker;
+                queue.push(neighbor);
+            }
+
+            if (currentCell.x === xEnd && currentCell.y === yEnd) {
+                break; // target reached
+            }
+        }
+
+        return locMaze;
+    }
+
+    recursionMark(currentCell);
+
+    currentCell = locMaze[yEnd][xEnd];
+
+    let path = [];
+
+    function backtrace(endCell) {
+        let currentCell = endCell;
+        let path = [currentCell];
+
+        while (currentCell.marker !== 0) {
+            let neighbors = [];
+            if ((currentCell.x - 1) >= 0) if (!locMaze[currentCell.y][currentCell.x - 1].isWall && locMaze[currentCell.y][currentCell.x - 1].marker < currentCell.marker)
+                neighbors.push(locMaze[currentCell.y][currentCell.x - 1]);
+            if ((currentCell.x + 1) < locMaze[0].length) if (!locMaze[currentCell.y][currentCell.x + 1].isWall && locMaze[currentCell.y][currentCell.x + 1].marker < currentCell.marker)
+                neighbors.push(locMaze[currentCell.y][currentCell.x + 1]);
+            if (currentCell.y - 1 >= 0) if (!locMaze[currentCell.y - 1][currentCell.x].isWall && locMaze[currentCell.y - 1][currentCell.x].marker < currentCell.marker)
+                neighbors.push(locMaze[currentCell.y - 1][currentCell.x]);
+            if (currentCell.y + 1 < locMaze.length) if (!locMaze[currentCell.y + 1][currentCell.x].isWall && locMaze[currentCell.y + 1][currentCell.x].marker < currentCell.marker)
+                neighbors.push(locMaze[currentCell.y + 1][currentCell.x]);
+
+            if (neighbors.length > 0) {
+                currentCell = neighbors[0];
+                path.unshift(currentCell);
+            } else {
+                break;
+            }
+        }
+
+        return path;
+    }
+    path=backtrace(currentCell);
+
+    return path;
+
+}
+async function sleep(secs) {
+    await new Promise((resolve,reject)=>setTimeout(resolve,secs*1000));
+}
