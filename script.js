@@ -209,7 +209,7 @@ document.addEventListener("keypress", function (event) {
         solveInit();
     }
 });
-document.getElementById("autosolve_button").addEventListener("click",solveInit);
+document.getElementById("autosolve_button").addEventListener("click", solveInit);
 
 
 function solveInit() {

@@ -17,6 +17,7 @@ body {
     width: 100px;
     height: 100px;
 }
+
 #autosolve_button {
     position: absolute;
     display: flex;
