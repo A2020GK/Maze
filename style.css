@@ -17,3 +17,17 @@ body {
     width: 100px;
     height: 100px;
 }
+#autosolve_button {
+    position: absolute;
+    display: flex;
+    bottom: 75px;
+    width: 75px;
+    height: 75px;
+    right: 75px;
+    border-radius: 25px;
+    justify-content: center;
+    align-items: center;
+    background-color: red;
+    color: white;
+    font-size: large;
+}

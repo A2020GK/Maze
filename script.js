@@ -18,7 +18,7 @@ let serverAddress = onlineMode ? prompt("Введите адрес сервер�
 let server = null; // WebSocket object will be created here later
 
 let nickname = prompt("Введите ваш ник") ?? "Игрок";
-nickname=nickname.trim();
+nickname = nickname.trim();
 if (nickname == "") nickname = "Игрок";
 
 // ==== Render & collision settings ====
@@ -111,6 +111,7 @@ const globalTextures = {
 }
 
 let map = [];
+let autosolveQueue = [];
 
 let onlineAskedFor = {
     onlineId: false,
@@ -139,6 +140,7 @@ function onlineMessage(msg) {
         }
     } else if (msg[0] == "map") {
         let data = JSON.parse(msg[1]);
+        autosolveQueue = [];
         map = data;
     } else if (msg[0] == "np") {
         let np = new Player();
@@ -200,6 +202,21 @@ document.addEventListener("keyup", function (event) {
     if (code == "KeyD" || code == "ArrowRight") keyboard.d = new_state;
 });
 
+document.addEventListener("keypress", function (event) {
+    const code = event.code;
+
+    if (code == "KeyU") {
+        solveInit();
+    }
+});
+document.getElementById("autosolve_button").addEventListener("click",solveInit);
+
+
+function solveInit() {
+    currentPlayer.x = (Math.floor(currentPlayer.x / blockSize) + 0.5) * blockSize;
+    currentPlayer.y = (Math.floor(currentPlayer.y / blockSize) + 0.5) * blockSize;
+    autosolveQueue = solveMaze(map, Math.floor(currentPlayer.x / blockSize), Math.floor(currentPlayer.y / blockSize), 39, 39);
+}
 
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Fatal destruction of everything
@@ -213,6 +230,19 @@ function render() {
         } else if (map[y][x] == 1) {
             ctx.drawImage(globalTextures.air, x * blockSize - camera.x, y * blockSize - camera.y, blockSize, blockSize);
         }
+    }
+
+    if (autosolveQueue.length > 0) {
+        ctx.strokeStyle = "purple";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(currentPlayer.x - camera.x, currentPlayer.y - camera.y);
+        ctx.lineTo((autosolveQueue[0].x + 0.5) * blockSize - camera.x, (autosolveQueue[0].y + 0.5) * blockSize - camera.y);
+        for (let i = 1; i < autosolveQueue.length; i++) {
+            ctx.lineTo((autosolveQueue[i].x + 0.5) * blockSize - camera.x, (autosolveQueue[i].y + 0.5) * blockSize - camera.y);
+        }
+        ctx.stroke();
     }
 
     for (let i = 0; i < players.length; i++) {
@@ -287,15 +317,34 @@ function app() {
             if (availableDirections.right) currentPlayer.move(moveCof, 0);
         }
         if (!keyboard.w && !keyboard.a && !keyboard.s && !keyboard.d && joystick_direction.includes("C")) {
-            currentPlayer.resetMove();
+            if (autosolveQueue.length > 0) {
+                let cofX = 0, cofY = 0;
+                let nextBlock = autosolveQueue[0];
+
+                let targetX = (nextBlock.x + 0.5) * blockSize
+                let targetY = (nextBlock.y + 0.5) * blockSize;
+
+                if (targetX > currentPlayer.x) cofX = moveCof;
+                else if (targetX < currentPlayer.x) cofX = -moveCof;
+                if (targetY > currentPlayer.y) cofY = moveCof;
+                else if (targetY < currentPlayer.y) cofY = -moveCof;
+
+                currentPlayer.move(cofX, cofY);
+                if (currentPlayer.x == targetX && currentPlayer.y == targetY) autosolveQueue.shift();
+            } else {
+                currentPlayer.resetMove();
+            }
+        } else {
+            autosolveQueue = [];
         }
     }
 
     if (!onlineMode && currentPlayer.done) {
         currentPlayer.x = blockSize * 1.5;
         currentPlayer.y = blockSize * 1.5;
-        currentPlayer.done=false;
+        currentPlayer.done = false;
         currentPlayer.resetMove();
+        autosolveQueue = [];
         map = convertMaze(generateMazeOld(20, 20));
     }
 
@@ -308,7 +357,7 @@ function app() {
     if (player_render_y < canvas.height * (cameraMoveScreenPrecentage / 100)) camera.y -= moveCof;
 
     render();
-    setTimeout(app,1000/60);
+    setTimeout(app, 1000 / 60);
 }
 
 app();
